@@ -1,0 +1,30 @@
+name: P2 GCP IAM Audit CI
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  checks:
+    name: Lint + Tests + Gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Python syntax + tests
+        run: |
+          python -m py_compile src/audit_iam.py src/check_secrets.py
+          python -m pytest tests/ -v
+      - name: ShellCheck - solo errores
+        run: |
+          sudo apt-get update && sudo apt-get install -y shellcheck
+          shellcheck --severity=error scripts/setup_baseline.sh
+      - name: Gitleaks - no secretos
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
