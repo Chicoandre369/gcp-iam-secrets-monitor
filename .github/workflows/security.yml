@@ -1,4 +1,4 @@
-name: P2 GCP IAM Audit CI
+﻿name: P2 GCP IAM Audit CI
 on:
   pull_request:
     branches: [main]
@@ -16,6 +16,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install pytest
+        run: pip install pytest
       - name: Python syntax + tests
         run: |
           python -m py_compile src/audit_iam.py src/check_secrets.py
